@@ -21,3 +21,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+__pycache__/
+*.pyc
+*.pkl
+*.h5
+*.db
+instance/
+Downloads/
