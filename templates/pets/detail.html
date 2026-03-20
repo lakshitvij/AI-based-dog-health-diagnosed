@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}{{ pet.name }} — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main">
+
+  <!-- Header -->
+  <div class="page-header flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-3">
+      <div class="pet-avatar" style="width:60px;height:60px;font-size:2rem;">🐶</div>
+      <div>
+        <h1 class="page-title">{{ pet.name }}</h1>
+        <p class="page-sub">
+          {{ pet.breed or 'Mixed / Unknown' }}
+          {% if pet.age %} · {{ pet.age }} yr{% endif %}
+          {% if pet.weight %} · {{ pet.weight }} kg{% endif %}
+        </p>
+      </div>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <a href="{{ url_for('diagnose', pet_id=pet.id) }}" class="btn btn-accent">🩺 Diagnose</a>
+      <a href="{{ url_for('pets_edit', pet_id=pet.id) }}" class="btn btn-outline">✏️ Edit</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- Profile card -->
+    <div class="card">
+      <h2 class="card-title">🐕 Profile</h2>
+      <table style="width:100%;font-size:.875rem;border-collapse:collapse;">
+        {% macro row(label, value) %}
+        {% if value %}
+        <tr>
+          <td style="padding:.45rem 0;color:var(--muted);font-weight:600;width:40%;vertical-align:top;">{{ label }}</td>
+          <td style="padding:.45rem 0;border-bottom:1px solid var(--border);vertical-align:top;">{{ value }}</td>
+        </tr>
+        {% endif %}
+        {% endmacro %}
+        {{ row('Breed', pet.breed or 'Unknown') }}
+        {{ row('Age', (pet.age|string + ' years') if pet.age else None) }}
+        {{ row('Weight', (pet.weight|string + ' kg') if pet.weight else None) }}
+        {{ row('Height', (pet.height|string + ' cm') if pet.height else None) }}
+        {{ row('Registered', pet.created_at.strftime('%b %d, %Y')) }}
+      </table>
+
+      {% if pet.past_diseases %}
+      <div class="mt-2">
+        <p class="text-xs text-muted font-bold" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">Past Diseases</p>
+        <p class="text-sm">{{ pet.past_diseases }}</p>
+      </div>
+      {% endif %}
+
+      {% if pet.allergies %}
+      <div class="mt-2" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--radius-sm);padding:.7rem .9rem;">
+        <p class="text-xs font-bold" style="color:#9a3412;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.2rem;">⚠ Known Allergies</p>
+        <p class="text-sm" style="color:#7c2d12;">{{ pet.allergies }}</p>
+      </div>
+      {% endif %}
+
+      {% if pet.behavior %}
+      <div class="mt-2">
+        <p class="text-xs text-muted font-bold" style="text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;">Behaviour Notes</p>
+        <p class="text-sm">{{ pet.behavior }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Delete -->
+      <hr class="hr" />
+      <form method="POST" action="{{ url_for('pets_delete', pet_id=pet.id) }}"
+            onsubmit="return confirm('Remove {{ pet.name }} and all their diagnoses? This cannot be undone.');">
+        <button type="submit" class="btn btn-danger btn-sm">🗑 Remove {{ pet.name }}</button>
+      </form>
+    </div>
+
+    <!-- Diagnosis history -->
+    <div class="card">
+      <div class="section-header">
+        <h2 class="section-title">📋 Diagnosis History</h2>
+        <a href="{{ url_for('diagnose', pet_id=pet.id) }}" class="btn btn-accent btn-sm">+ New</a>
+      </div>
+
+      {% if predictions %}
+        <div style="display:flex;flex-direction:column;gap:.75rem;">
+          {% for p in predictions %}
+          <div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:.875rem;">
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="font-semibold text-sm">{{ p.disease }}</span>
+              <div class="flex items-center gap-1">
+                <span class="text-xs text-muted">{{ p.confidence }}%</span>
+                <span class="badge {{ p.severity|severity_class }}">{{ p.severity }}</span>
+              </div>
+            </div>
+            <p class="text-xs text-muted mb-1">{{ p.created_at.strftime('%B %d, %Y · %H:%M') }}</p>
+            <p class="text-xs" style="color:var(--text);line-height:1.5;">
+              <strong>Symptoms:</strong>
+              {{ p.symptoms[:100] }}{% if p.symptoms|length > 100 %}…{% endif %}
+            </p>
+            {% if p.notes_list %}
+            <div class="mt-1">
+              {% for note in p.notes_list[:1] %}
+              <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:4px;padding:.35rem .6rem;font-size:.75rem;color:#78350f;margin-top:.3rem;">
+                ⚠ {{ note }}
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-icon">🩺</div>
+          <p class="empty-title">No diagnoses yet</p>
+          <p class="empty-desc">Run a symptom check to start tracking {{ pet.name }}'s health.</p>
+          <a href="{{ url_for('diagnose', pet_id=pet.id) }}" class="btn btn-accent btn-sm">Diagnose Now</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

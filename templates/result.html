@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Result: {{ result.disease }} — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main-narrow">
+
+  <!-- Result header card -->
+  <div class="result-header">
+    <div>
+      <div style="font-size:.8rem;opacity:.75;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;">
+        Diagnosis Result{% if pet %} · {{ pet.name }}{% endif %}
+      </div>
+      <div class="result-disease">{{ result.disease }}</div>
+      <div class="result-meta" style="margin-top:.4rem;">
+        <span class="badge {{ result.severity|severity_class }}" style="background:rgba(255,255,255,.2);color:white;border:1px solid rgba(255,255,255,.3);">
+          {{ result.severity }}
+        </span>
+      </div>
+    </div>
+    <div class="result-confidence-ring">
+      <span class="conf-value">{{ result.confidence|int }}%</span>
+      <span class="conf-label">Confidence</span>
+    </div>
+  </div>
+
+  <!-- Symptoms -->
+  <div class="card mb-2">
+    <p class="text-xs text-muted" style="text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:.4rem;">Reported Symptoms</p>
+    <p class="text-sm">{{ symptoms }}</p>
+  </div>
+
+  <!-- Description -->
+  <div class="card mb-2">
+    <h2 class="card-title">📖 About {{ result.disease }}</h2>
+    <p style="font-size:.9rem;line-height:1.7;color:var(--text);">{{ result.description }}</p>
+  </div>
+
+  <!-- Care tips -->
+  <div class="card mb-2">
+    <h2 class="card-title">💊 Care Recommendations</h2>
+    <ul class="care-list">
+      {% for tip in result.care_tips %}
+      <li>
+        <span class="care-check">✓</span>
+        {{ tip }}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Personalised notes (only if present) -->
+  {% if result.personalized_notes %}
+  <div class="card mb-2">
+    <h2 class="card-title">🐕 Personalised Notes for {{ pet.name if pet else 'Your Dog' }}</h2>
+    <div class="notes-list">
+      {% for note in result.personalized_notes %}
+      <div class="note-box">
+        <span>⚠️</span>
+        <span>{{ note }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Disclaimer -->
+  <div class="disclaimer mb-3">
+    ⚠️
+    <span>
+      This result is for informational purposes only and is <strong>not</strong> a professional
+      veterinary diagnosis. Please consult a licensed veterinarian for accurate diagnosis and
+      treatment, especially if symptoms are severe or worsening.
+    </span>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex gap-2 flex-wrap">
+    <a href="{{ url_for('diagnose', pet_id=pet.id) if pet else url_for('diagnose') }}"
+       class="btn btn-accent">🔄 New Diagnosis</a>
+    <a href="{{ url_for('history') }}" class="btn btn-outline">📋 View History</a>
+    {% if pet %}
+    <a href="{{ url_for('pets_detail', pet_id=pet.id) }}" class="btn btn-ghost">🐕 {{ pet.name }}'s Profile</a>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">Dashboard</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Pet — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main-narrow">
+
+  <div class="page-header">
+    <h1 class="page-title">{{ '🐾 Add a New Pet' if action == 'Add' else '✏️ Edit ' + pet.name }}</h1>
+    <p class="page-sub">
+      {% if action == 'Add' %}
+        Fill in your dog's details. The more information you provide, the more personalised the diagnoses will be.
+      {% else %}
+        Update {{ pet.name }}'s profile information.
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+
+      <!-- Basic info -->
+      <h3 class="card-title">Basic Information</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="name">Pet Name *</label>
+          <input class="form-control" type="text" id="name" name="name"
+            value="{{ pet.name if pet else '' }}" placeholder="Buddy" required maxlength="80" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="breed">
+            Breed <span class="form-optional">(optional)</span>
+          </label>
+          <input class="form-control" type="text" id="breed" name="breed"
+            value="{{ pet.breed or '' if pet else '' }}" placeholder="Golden Retriever" maxlength="100" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="age">
+            Age <span class="form-optional">(years)</span>
+          </label>
+          <input class="form-control" type="number" id="age" name="age"
+            value="{{ pet.age or '' if pet else '' }}" placeholder="3" min="0" max="30" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="weight">
+            Weight <span class="form-optional">(kg)</span>
+          </label>
+          <input class="form-control" type="number" id="weight" name="weight"
+            value="{{ pet.weight or '' if pet else '' }}" placeholder="25" min="0" max="200" step="0.1" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="height">
+          Height <span class="form-optional">(cm, optional)</span>
+        </label>
+        <input class="form-control" type="number" id="height" name="height"
+          value="{{ pet.height or '' if pet else '' }}" placeholder="60" min="0" max="120" step="0.5"
+          style="max-width:180px;" />
+      </div>
+
+      <hr class="hr" />
+
+      <!-- Health info -->
+      <h3 class="card-title">Health Profile</h3>
+
+      <div class="form-group">
+        <label class="form-label" for="past_diseases">
+          Past / Current Diseases <span class="form-optional">(optional)</span>
+        </label>
+        <textarea class="form-control" id="past_diseases" name="past_diseases"
+          rows="2" placeholder="e.g. Kennel Cough (2022), Skin Allergy (ongoing)">{{ pet.past_diseases or '' if pet else '' }}</textarea>
+        <p class="form-hint">List any known diagnoses, treatments, or ongoing conditions.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="allergies">
+          Known Allergies <span class="form-optional">(optional)</span>
+        </label>
+        <textarea class="form-control" id="allergies" name="allergies"
+          rows="2" placeholder="e.g. Chicken, pollen, dust mites">{{ pet.allergies or '' if pet else '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="behavior">
+          Behaviour Notes <span class="form-optional">(optional)</span>
+        </label>
+        <textarea class="form-control" id="behavior" name="behavior"
+          rows="2" placeholder="e.g. Usually energetic, loves to play; recently lethargic">{{ pet.behavior or '' if pet else '' }}</textarea>
+        <p class="form-hint">Describe typical behaviour and any recent changes.</p>
+      </div>
+
+      <div class="flex gap-2 flex-wrap mt-2">
+        <button type="submit" class="btn btn-accent btn-lg">
+          {{ '🐾 Add Pet' if action == 'Add' else '💾 Save Changes' }}
+        </button>
+        {% if pet %}
+        <a href="{{ url_for('pets_detail', pet_id=pet.id) }}" class="btn btn-ghost btn-lg">Cancel</a>
+        {% else %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-ghost btn-lg">Cancel</a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}

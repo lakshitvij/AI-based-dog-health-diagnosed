@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Diagnosis History — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main">
+
+  <div class="page-header flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="page-title">📋 Diagnosis History</h1>
+      <p class="page-sub">All {{ predictions|length }} past diagnoses for your account.</p>
+    </div>
+    <a href="{{ url_for('diagnose') }}" class="btn btn-accent">🩺 New Diagnosis</a>
+  </div>
+
+  {% if predictions %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Pet</th>
+          <th>Disease</th>
+          <th>Severity</th>
+          <th>Confidence</th>
+          <th>Symptoms</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in predictions %}
+        <tr>
+          <td class="text-muted">{{ loop.index }}</td>
+          <td class="text-sm" style="white-space:nowrap;">
+            {{ p.created_at.strftime('%b %d, %Y') }}<br>
+            <span class="text-xs text-muted">{{ p.created_at.strftime('%H:%M') }}</span>
+          </td>
+          <td class="text-sm">
+            {% if p.pet %}🐕 {{ p.pet.name }}{% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            <span class="font-semibold text-sm">{{ p.disease }}</span>
+          </td>
+          <td>
+            <span class="badge {{ p.severity|severity_class }}">{{ p.severity or '—' }}</span>
+          </td>
+          <td class="text-sm font-semibold" style="color:var(--primary);">
+            {{ p.confidence }}%
+          </td>
+          <td class="text-xs text-muted" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ p.symptoms[:80] }}{% if p.symptoms|length > 80 %}…{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-icon">🩺</div>
+      <p class="empty-title">No diagnoses yet</p>
+      <p class="empty-desc">Your diagnosis history will appear here after your first check.</p>
+      <a href="{{ url_for('diagnose') }}" class="btn btn-accent">Start First Diagnosis</a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

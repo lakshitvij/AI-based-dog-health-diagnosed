@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Diagnose — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main-narrow">
+
+  <div class="page-header">
+    <h1 class="page-title">🩺 Symptom Diagnosis</h1>
+    <p class="page-sub">
+      Describe your dog's symptoms and select a pet profile for a personalised result.
+    </p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+
+      <!-- Pet selector -->
+      <div class="form-group">
+        <label class="form-label" for="pet_id">
+          Select Pet <span class="form-optional">(optional — improves accuracy)</span>
+        </label>
+        {% if pets %}
+          <select class="form-control" id="pet_id" name="pet_id">
+            <option value="">— General diagnosis (no pet profile) —</option>
+            {% for pet in pets %}
+            <option value="{{ pet.id }}"
+              {% if selected_pet and selected_pet.id == pet.id %}selected{% endif %}>
+              {{ pet.name }}{% if pet.breed %} ({{ pet.breed }}){% endif %}
+              {% if pet.age %} · {{ pet.age }} yr{% endif %}
+            </option>
+            {% endfor %}
+          </select>
+        {% else %}
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem 1rem;font-size:.875rem;color:var(--muted);">
+            No pets registered yet.
+            <a href="{{ url_for('pets_add') }}" style="color:var(--primary);font-weight:600;">Add a pet</a>
+            to get personalised results.
+          </div>
+          <input type="hidden" name="pet_id" value="" />
+        {% endif %}
+      </div>
+
+      <!-- Symptoms input -->
+      <div class="form-group">
+        <label class="form-label" for="symptoms">Describe the Symptoms</label>
+        <textarea
+          class="form-control"
+          id="symptoms"
+          name="symptoms"
+          rows="5"
+          placeholder="e.g. lethargy, vomiting, loss of appetite, bloody stool for the past 2 days…"
+          required
+        ></textarea>
+        <p class="form-hint">
+          Be as descriptive as possible. Include duration, severity, and any other changes in behaviour.
+        </p>
+      </div>
+
+      <!-- Quick symptom chips -->
+      <div class="form-group">
+        <p class="form-label">Quick Add</p>
+        <div class="flex flex-wrap gap-1">
+          {% for symptom in ['Vomiting','Diarrhea','Lethargy','Loss of appetite','Coughing',
+                             'Scratching','Limping','Seizure','Excessive thirst','Hair loss'] %}
+          <button type="button"
+            class="btn btn-ghost btn-sm"
+            onclick="addSymptom('{{ symptom }}')"
+            style="font-size:.78rem;"
+          >+ {{ symptom }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-accent btn-full btn-lg mt-2">
+        🔍 Run Diagnosis
+      </button>
+    </form>
+  </div>
+
+  <div class="disclaimer mt-2">
+    ⚠️
+    <span>
+      This tool provides informational guidance only. It is not a substitute for professional
+      veterinary care. Always consult a licensed veterinarian for diagnosis and treatment.
+    </span>
+  </div>
+
+</div>
+
+<script>
+function addSymptom(text) {
+  const ta = document.getElementById('symptoms');
+  const val = ta.value.trim();
+  ta.value = val ? val + ', ' + text.toLowerCase() : text.toLowerCase();
+  ta.focus();
+}
+</script>
+{% endblock %}

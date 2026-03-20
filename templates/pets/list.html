@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}My Pets — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main">
+
+  <div class="page-header flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="page-title">🐕 My Pets</h1>
+      <p class="page-sub">{{ pets|length }} pet{{ 's' if pets|length != 1 }} registered.</p>
+    </div>
+    <a href="{{ url_for('pets_add') }}" class="btn btn-accent">+ Add Pet</a>
+  </div>
+
+  {% if pets %}
+  <div class="grid-3">
+    {% for pet in pets %}
+    <div class="pet-card">
+      <div class="pet-card-header">
+        <div class="pet-avatar">🐶</div>
+        <div>
+          <div class="pet-name">{{ pet.name }}</div>
+          <div class="pet-breed">{{ pet.breed or 'Mixed / Unknown breed' }}</div>
+        </div>
+      </div>
+
+      <div class="pet-meta">
+        {% if pet.age %}
+        <span class="pet-meta-item"><strong>Age</strong> {{ pet.age }} yr</span>
+        {% endif %}
+        {% if pet.weight %}
+        <span class="pet-meta-item"><strong>Weight</strong> {{ pet.weight }} kg</span>
+        {% endif %}
+        {% if pet.height %}
+        <span class="pet-meta-item"><strong>Height</strong> {{ pet.height }} cm</span>
+        {% endif %}
+      </div>
+
+      {% if pet.allergies %}
+      <div class="text-xs" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:.3rem .6rem;color:#7c2d12;">
+        ⚠ Allergies: {{ pet.allergies[:60] }}{% if pet.allergies|length > 60 %}…{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="pet-actions">
+        <a href="{{ url_for('diagnose', pet_id=pet.id) }}" class="btn btn-accent btn-sm">🩺 Diagnose</a>
+        <a href="{{ url_for('pets_detail', pet_id=pet.id) }}" class="btn btn-outline btn-sm">View</a>
+        <a href="{{ url_for('pets_edit', pet_id=pet.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="empty-icon">🐾</div>
+      <p class="empty-title">No pets yet</p>
+      <p class="empty-desc">
+        Add your dog's profile to get personalised health diagnoses tailored
+        to their breed, age, and medical history.
+      </p>
+      <a href="{{ url_for('pets_add') }}" class="btn btn-accent">Add Your First Pet</a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}DogHealth AI — Smart Dog Health Diagnosis{% endblock %}
+
+{% block content %}
+<div class="hero-wrap">
+  <div>
+    <div class="hero">
+      <span class="hero-emoji">🐾</span>
+      <h1 class="hero-title">
+        Smart Health Diagnosis<br>
+        <span>for Your Dog</span>
+      </h1>
+      <p class="hero-sub">
+        Describe your dog's symptoms and get an instant, personalized health assessment
+        powered by machine learning and your pet's profile.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('signup') }}" class="btn btn-accent btn-lg">Get Started Free</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg">Log In</a>
+      </div>
+    </div>
+
+    <div class="features" style="max-width:1100px;margin:3rem auto 0;">
+      <div class="feature-card">
+        <div class="feature-icon">🩺</div>
+        <div class="feature-title">Symptom Analysis</div>
+        <div class="feature-desc">
+          Enter your dog's symptoms in plain language and receive an instant
+          disease prediction with care recommendations.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🐕</div>
+        <div class="feature-title">Pet Profiles</div>
+        <div class="feature-desc">
+          Store breed, age, weight, allergies, and medical history.
+          Predictions are personalised to each pet's unique profile.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">History & Tracking</div>
+        <div class="feature-desc">
+          Every diagnosis is saved so you can monitor your dog's
+          health over time and share records with your vet.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

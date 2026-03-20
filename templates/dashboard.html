@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — DogHealth AI{% endblock %}
+
+{% block content %}
+<div class="main">
+
+  <div class="page-header flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="page-title">Hello, {{ user.username }} 👋</h1>
+      <p class="page-sub">Here's an overview of your pets and recent diagnoses.</p>
+    </div>
+    <a href="{{ url_for('diagnose') }}" class="btn btn-accent">🩺 New Diagnosis</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-3 mb-3">
+    <div class="stat-card">
+      <div class="stat-value">{{ pets|length }}</div>
+      <div class="stat-label">Registered Pets</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ pred_count }}</div>
+      <div class="stat-label">Total Diagnoses</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ recent|length }}</div>
+      <div class="stat-label">Recent (this session)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- Pets panel -->
+    <div class="card">
+      <div class="section-header">
+        <span class="section-title">🐕 Your Pets</span>
+        <a href="{{ url_for('pets_add') }}" class="btn btn-outline btn-sm">+ Add Pet</a>
+      </div>
+
+      {% if pets %}
+        <div style="display:flex;flex-direction:column;gap:.75rem;">
+          {% for pet in pets[:4] %}
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <div class="pet-avatar" style="width:38px;height:38px;font-size:1rem;">🐶</div>
+              <div>
+                <div class="font-semibold text-sm">{{ pet.name }}</div>
+                <div class="text-xs text-muted">
+                  {{ pet.breed or 'Mixed breed' }}{% if pet.age %} · {{ pet.age }} yr{% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-1">
+              <a href="{{ url_for('diagnose', pet_id=pet.id) }}" class="btn btn-accent btn-sm">Diagnose</a>
+              <a href="{{ url_for('pets_detail', pet_id=pet.id) }}" class="btn btn-ghost btn-sm">View</a>
+            </div>
+          </div>
+          {% endfor %}
+          {% if pets|length > 4 %}
+          <a href="{{ url_for('pets_list') }}" class="text-sm" style="color:var(--primary);">
+            View all {{ pets|length }} pets →
+          </a>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-icon">🐾</div>
+          <p class="empty-title">No pets yet</p>
+          <p class="empty-desc">Add your first pet to get personalised diagnoses.</p>
+          <a href="{{ url_for('pets_add') }}" class="btn btn-primary btn-sm">Add a Pet</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent diagnoses -->
+    <div class="card">
+      <div class="section-header">
+        <span class="section-title">📋 Recent Diagnoses</span>
+        <a href="{{ url_for('history') }}" class="btn btn-ghost btn-sm">All →</a>
+      </div>
+
+      {% if recent %}
+        <div style="display:flex;flex-direction:column;gap:.75rem;">
+          {% for p in recent %}
+          <div style="border-bottom:1px solid var(--border);padding-bottom:.75rem;">
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="font-semibold text-sm">{{ p.disease }}</span>
+              <span class="badge {{ p.severity|severity_class }}">{{ p.severity }}</span>
+            </div>
+            <div class="text-xs text-muted">
+              {% if p.pet %}🐕 {{ p.pet.name }} · {% endif %}
+              {{ p.confidence }}% confidence ·
+              {{ p.created_at.strftime('%b %d, %Y') }}
+            </div>
+            <div class="text-xs text-muted mt-1" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              Symptoms: {{ p.symptoms[:70] }}{% if p.symptoms|length > 70 %}…{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-icon">🩺</div>
+          <p class="empty-title">No diagnoses yet</p>
+          <p class="empty-desc">Run your first symptom check to see results here.</p>
+          <a href="{{ url_for('diagnose') }}" class="btn btn-accent btn-sm">Start Diagnosis</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /grid-2 -->
+</div>
+{% endblock %}
