@@ -41,17 +41,26 @@ with app.app_context():
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Please log in to continue.', 'error')
+        user = current_user()
+
+        if not user:
+            session.clear()  # 🔥 important
+            flash('Session expired. Please log in again.', 'error')
             return redirect(url_for('login'))
+
         return f(*args, **kwargs)
     return decorated
 
-
 def current_user():
-    if 'user_id' in session:
-        return User.query.get(session['user_id'])
-    return None
+    user_id = session.get('user_id')
+    if not user_id:
+        return None
+
+    try:
+        user = User.query.get(user_id)
+        return user
+    except:
+        return None
 
 
 # ── Prediction logic ───────────────────────────────────────────────────────
