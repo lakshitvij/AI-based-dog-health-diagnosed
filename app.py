@@ -110,20 +110,25 @@ _FALLBACK_INFO = {
     'care_tips': ['Consult a veterinarian promptly.', 'Monitor your dog closely for worsening symptoms.'],
     'severity': 'Unknown',
 }
-
 def generate_care_advice(disease, pet=None):
     base = BASE_DISEASE_INFO.get(disease, {})
 
     advice = []
     advice.extend(base.get("home_care", []))
 
-    # Personalization
+    # SAFE personalization
     if pet:
-        if pet.age and float(pet.age) < 1:
-            advice.append("Puppies need extra care and monitoring")
+        try:
+            if pet.age and float(pet.age) < 1:
+                advice.append("Puppies need extra care and monitoring")
+        except:
+            pass
 
-        if pet.weight and float(pet.weight) > 30:
-            advice.append("Maintain controlled diet due to higher weight")
+        try:
+            if pet.weight and float(pet.weight) > 30:
+                advice.append("Maintain controlled diet due to higher weight")
+        except:
+            pass
 
     # Severity
     severity = base.get("severity", "Moderate")
@@ -137,10 +142,10 @@ def generate_care_advice(disease, pet=None):
     elif severity == "Mild":
         advice.append("🟢 Can be managed at home initially")
 
-    # Safety line
     advice.append("⚠️ This is not a substitute for professional veterinary advice")
 
     return advice, severity
+
 def get_disease_info(disease):
     if HAS_ML:
         try:
