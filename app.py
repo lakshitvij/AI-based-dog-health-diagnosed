@@ -74,6 +74,35 @@ DISEASE_KEYWORDS = {
     'Dental Disease':         ['bad breath', 'bleeding gums', 'loose tooth', 'drooling', 'reluctant to eat'],
     'Anemia':                 ['pale gums', 'weakness', 'rapid breathing', 'fatigue', 'lethargy'],
     'Liver Disease':          ['jaundice', 'yellow skin', 'vomiting', 'loss of appetite', 'weight loss'],
+} 
+BASE_DISEASE_INFO = {
+    "Parvovirus": {
+        "severity": "Critical",
+        "home_care": [
+            "Keep dog hydrated with electrolyte fluids",
+            "Avoid feeding during vomiting",
+            "Isolate from other dogs"
+        ],
+        "vet_required": True
+    },
+    "Gastroenteritis": {
+        "severity": "Moderate",
+        "home_care": [
+            "Feed bland diet (rice + boiled chicken)",
+            "Ensure hydration",
+            "Avoid oily food"
+        ],
+        "vet_required": False
+    },
+    "Skin Allergy": {
+        "severity": "Mild",
+        "home_care": [
+            "Avoid allergens",
+            "Clean skin regularly",
+            "Use mild dog shampoo"
+        ],
+        "vet_required": False
+    }
 }
 
 _FALLBACK_INFO = {
@@ -82,7 +111,36 @@ _FALLBACK_INFO = {
     'severity': 'Unknown',
 }
 
+def generate_care_advice(disease, pet=None):
+    base = BASE_DISEASE_INFO.get(disease, {})
 
+    advice = []
+    advice.extend(base.get("home_care", []))
+
+    # Personalization
+    if pet:
+        if pet.age and float(pet.age) < 1:
+            advice.append("Puppies need extra care and monitoring")
+
+        if pet.weight and float(pet.weight) > 30:
+            advice.append("Maintain controlled diet due to higher weight")
+
+    # Severity
+    severity = base.get("severity", "Moderate")
+
+    if severity == "Critical":
+        advice.append("⚠️ Immediate veterinary attention required")
+
+    elif severity == "Moderate":
+        advice.append("Monitor symptoms closely")
+
+    elif severity == "Mild":
+        advice.append("🟢 Can be managed at home initially")
+
+    # Safety line
+    advice.append("⚠️ This is not a substitute for professional veterinary advice")
+
+    return advice, severity
 def get_disease_info(disease):
     if HAS_ML:
         try:
@@ -115,7 +173,7 @@ def get_personalized_prediction(symptoms, pet=None):
         disease, confidence = rule_based_predict(symptoms)
 
     disease_data = get_disease_info(disease)
-    care_tips = disease_data.get('care_tips', [_FALLBACK_INFO['care_tips'][0]])
+    care_tips, severity = generate_care_advice(disease, pet)
     if isinstance(care_tips, str):
         care_tips = [care_tips]
 
@@ -173,7 +231,7 @@ def get_personalized_prediction(symptoms, pet=None):
         'confidence': round(confidence, 1),
         'description': disease_data.get('description', _FALLBACK_INFO['description']),
         'care_tips': care_tips,
-        'severity': disease_data.get('severity', 'Unknown'),
+        'severity': severity,
         'personalized_notes': notes,
     }
 
