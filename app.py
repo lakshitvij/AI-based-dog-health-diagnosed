@@ -271,12 +271,9 @@ def severity_class(sev):
 # ROUTES — AUTH
 # ══════════════════════════════════════════════════════════════════════════
 
-@app.route('/')
-def index():
-    if 'user_id' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
-
+@app.route("/")
+def home():
+    return "Dog Health AI API is LIVE "
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
